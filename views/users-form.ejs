@@ -1,0 +1,18 @@
+<%- include('partials/header', { title: row ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้' }) %>
+<form class="card form narrow" method="post" action="<%= row ? '/admin/users/' + row.user_id + '/update' : '/admin/users' %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>ชื่อผู้ใช้ (a-z, 0-9, _ ยาว 3–30)
+    <input name="username" maxlength="30" value="<%= row ? row.username : '' %>" <%= row ? 'disabled' : 'required' %>></label>
+  <label>ชื่อ-นามสกุล <input name="full_name" maxlength="100" value="<%= row ? row.full_name : '' %>" required></label>
+  <label>Role
+    <select name="role_id" required>
+      <% roles.forEach(r => { %><option value="<%= r.role_id %>" <%= row && row.role_id === r.role_id ? 'selected' : '' %>><%= r.role_name %></option><% }) %>
+    </select></label>
+  <% if (row) { %>
+  <label class="check"><input type="checkbox" name="is_active" <%= row.is_active ? 'checked' : '' %>> เปิดใช้งานบัญชี</label>
+  <% } %>
+  <label>รหัสผ่าน <%= row ? '(เว้นว่างเพื่อใช้รหัสเดิม)' : '(อย่างน้อย 8 ตัวอักษร)' %>
+    <input type="password" name="password" minlength="8" autocomplete="new-password" <%= row ? '' : 'required' %>></label>
+  <div class="btn-row"><button class="btn primary">บันทึก</button><a class="btn ghost" href="/admin/users">ยกเลิก</a></div>
+</form>
+<%- include('partials/footer') %>

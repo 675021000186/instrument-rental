@@ -1,0 +1,37 @@
+<%- include('partials/header', { title: 'เครื่องดนตรี' }) %>
+<div class="toolbar">
+  <form class="filters" method="get">
+    <input name="q" placeholder="🔍 ค้นหาชื่อเครื่องดนตรี" value="<%= q %>">
+    <select name="category">
+      <option value="">ทุกหมวด</option>
+      <% Object.entries(CATEGORY).forEach(([k, v]) => { %>
+      <option value="<%= k %>" <%= category === k ? 'selected' : '' %>><%= v[1] %> <%= v[0] %></option>
+      <% }) %>
+    </select>
+    <button class="btn">ค้นหา</button>
+  </form>
+  <% if (can('instrument.create')) { %><a class="btn primary" href="/app/instruments/new">+ เพิ่มเครื่องดนตรี</a><% } %>
+</div>
+<div class="grid cards">
+<% rows.forEach(r => { %>
+  <article class="card inst">
+    <a class="thumb" href="/app/instruments/<%= r.instrument_id %>">
+      <% if (r.image_id && can('file.read')) { %><img src="/app/files/<%= r.image_id %>" alt="<%= r.name %>" loading="lazy">
+      <% } else { %><span class="emoji"><%= CATEGORY[r.category][1] %></span><% } %>
+    </a>
+    <div class="body">
+      <span class="badge muted"><%= CATEGORY[r.category][0] %></span>
+      <h3><a href="/app/instruments/<%= r.instrument_id %>"><%= r.name %></a></h3>
+      <p class="price"><%= baht(r.daily_price) %> <small>/ วัน</small></p>
+      <p class="muted"><%= r.stock > 0 ? 'คงเหลือ ' + r.stock + ' ชิ้น' : 'หมดชั่วคราว' %></p>
+    </div>
+    <div class="actions">
+      <a class="btn sm" href="/app/instruments/<%= r.instrument_id %>">รายละเอียด</a>
+      <% if (can('rental.create') && r.stock > 0) { %><a class="btn primary sm" href="/app/instruments/<%= r.instrument_id %>#rent">เช่าเลย</a><% } %>
+      <% if (can('instrument.update')) { %><a class="btn ghost sm" href="/app/instruments/<%= r.instrument_id %>/edit">แก้ไข</a><% } %>
+    </div>
+  </article>
+<% }) %>
+</div>
+<% if (!rows.length) { %><div class="empty">ไม่พบเครื่องดนตรีที่ค้นหา</div><% } %>
+<%- include('partials/footer') %>

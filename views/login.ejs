@@ -1,0 +1,39 @@
+<%- include('partials/header', { title: 'เข้าสู่ระบบ', bare: true }) %>
+<div class="login-wrap">
+  <section class="login-hero">
+    <img class="logo-img" src="/logo.svg" alt="โลโก้จังหวะหัวใจ">
+    <h1>จังหวะหัวใจ</h1>
+    <div class="tagline">RHYTHM OF THE HEART</div>
+    <p>ระบบเช่าเครื่องดนตรีออนไลน์<br>เลือกเครื่อง ส่งคำขอ รับเครื่อง คืนเครื่อง ในที่เดียว</p>
+  </section>
+  <section class="card login-card">
+    <h2>เข้าสู่ระบบ</h2>
+    <% if (error) { %><div class="alert bad"><%= error %></div><% } %>
+    <form method="post" action="/login" id="loginForm">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label>ชื่อผู้ใช้ <input name="username" id="u" autocomplete="username" required autofocus></label>
+      <label>รหัสผ่าน <input type="password" name="password" id="p" autocomplete="current-password" required></label>
+      <button class="btn primary block">เข้าสู่ระบบ</button>
+    </form>
+    <% if (demo.length) { %>
+    <h3 class="demo-title">บัญชีทดสอบ <small>(คลิกเพื่อกรอกให้อัตโนมัติ)</small></h3>
+    <div class="demo-grid">
+      <% demo.forEach(d => { %>
+      <button type="button" class="demo" data-u="<%= d.username %>" data-p="<%= d.password %>">
+        <strong><%= d.label %></strong>
+        <code><%= d.username %> / <%= d.password %></code>
+        <small><%= d.note %></small>
+      </button>
+      <% }) %>
+    </div>
+    <% } %>
+  </section>
+</div>
+<script>
+document.querySelectorAll('.demo').forEach(b => b.addEventListener('click', () => {
+  document.getElementById('u').value = b.dataset.u;
+  document.getElementById('p').value = b.dataset.p;
+  document.getElementById('loginForm').submit();
+}));
+</script>
+<%- include('partials/footer') %>

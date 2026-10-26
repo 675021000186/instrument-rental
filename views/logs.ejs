@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'Log การใช้งาน' }) %>
+<form class="card filters-grid" method="get">
+  <label>ตั้งแต่วันที่ <input type="date" name="from" value="<%= f.from %>"></label>
+  <label>ถึงวันที่ <input type="date" name="to" value="<%= f.to %>"></label>
+  <label>ผู้ใช้ <input name="username" value="<%= f.username %>" placeholder="ชื่อบัญชี"></label>
+  <label>เหตุการณ์
+    <select name="event"><option value="">ทั้งหมด</option>
+      <% events.forEach(e => { %><option <%= f.event === e ? 'selected' : '' %>><%= e %></option><% }) %></select></label>
+  <label>ผล
+    <select name="result"><option value="">ทั้งหมด</option>
+      <% ['success','failure','denied'].forEach(x => { %><option <%= f.result === x ? 'selected' : '' %>><%= x %></option><% }) %></select></label>
+  <div class="btn-row"><button class="btn primary">กรอง</button><a class="btn ghost" href="/admin/logs">ล้าง</a></div>
+</form>
+<p class="muted">แสดง <%= rows.length %> รายการล่าสุดตามเงื่อนไข (สูงสุด 300) · เวลาเขตไทย</p>
+<div class="table-wrap"><table class="logs">
+  <thead><tr><th>#</th><th>วัน-เวลา</th><th>ผู้ใช้</th><th>เหตุการณ์</th><th>ทรัพยากร</th><th>รายละเอียด</th><th>ผล</th><th>IP</th></tr></thead>
+  <tbody>
+  <% rows.forEach(l => { %>
+  <tr>
+    <td><%= l.log_id %></td><td class="nowrap"><%= fmtDateTime(l.created_at) %></td>
+    <td><%= l.username || '-' %></td><td><code><%= l.event %></code></td>
+    <td><%= l.resource || '-' %><%= l.resource_id ? ' #' + l.resource_id : '' %></td>
+    <td><%= l.detail %></td>
+    <td><span class="badge <%= l.result === 'success' ? 'ok' : l.result === 'denied' ? 'bad' : 'warn' %>"><%= l.result %></span></td>
+    <td class="muted"><%= l.ip || '' %></td>
+  </tr>
+  <% }) %>
+  <% if (!rows.length) { %><tr><td colspan="8" class="muted">ไม่พบ Log ตามเงื่อนไข</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('partials/footer') %>

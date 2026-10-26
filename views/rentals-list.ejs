@@ -1,0 +1,29 @@
+<%- include('partials/header', { title: all ? 'คำขอเช่าทั้งหมด' : 'การเช่าของฉัน' }) %>
+<div class="tabs">
+  <a class="<%= status === '' ? 'active' : '' %>" href="/app/rentals">ทั้งหมด</a>
+  <% Object.entries(STATUS).forEach(([k, v]) => { %>
+  <a class="<%= status === k ? 'active' : '' %>" href="/app/rentals?status=<%= k %>"><%= v[0] %></a>
+  <% }) %>
+</div>
+<div class="table-wrap"><table>
+  <thead><tr><th>#</th><% if (all) { %><th>ผู้เช่า</th><% } %><th>เครื่องดนตรี</th><th>เริ่มเช่า</th><th>วัน</th><th>ราคารวม</th><th>สถานะ</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach(r => { %>
+  <tr>
+    <td><%= r.rental_id %></td>
+    <% if (all) { %><td><%= r.full_name %></td><% } %>
+    <td><%= CATEGORY[r.category][1] %> <%= r.instrument_name %></td>
+    <td><%= fmtDate(r.start_date) %></td>
+    <td><%= r.days %></td>
+    <td><%= baht(r.total_price) %></td>
+    <td><span class="badge <%= STATUS[r.status][1] %>"><%= STATUS[r.status][0] %></span></td>
+    <td class="actions-cell">
+      <a class="btn sm" href="/app/rentals/<%= r.rental_id %>">ดู</a>
+      <%- include('partials/rental-actions', { r: r }) %>
+    </td>
+  </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<% if (!rows.length) { %><div class="empty">ยังไม่มีรายการ</div><% } %>
+<%- include('partials/footer') %>

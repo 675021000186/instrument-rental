@@ -1,0 +1,10 @@
+<% const acts = [];
+   if (r.status === 'pending' && can('rental.approve')) { acts.push(['approve','อนุมัติ','primary']); acts.push(['reject','ปฏิเสธ','danger']); }
+   if (r.status === 'approved' && can('rental.update_status')) acts.push(['pickup','ส่งมอบเครื่อง','primary']);
+   if (r.status === 'picked_up' && can('rental.update_status')) acts.push(['return','รับคืนเครื่อง','primary']);
+   if ((r.status === 'pending' && r.user_id === user.user_id && can('rental.cancel.own')) ||
+       (['pending','approved'].includes(r.status) && can('rental.update_status'))) acts.push(['cancel','ยกเลิก','ghost']);
+%><% acts.forEach(a => { %>
+<form class="inline" method="post" action="/app/rentals/<%= r.rental_id %>/<%= a[0] %>" onsubmit="return confirm('ยืนยัน: <%= a[1] %> ?')">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm <%= a[2] %>"><%= a[1] %></button>
+</form><% }) %>

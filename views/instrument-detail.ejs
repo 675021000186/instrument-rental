@@ -1,0 +1,63 @@
+<%- include('partials/header', { title: i.name }) %>
+<p><a href="/app/instruments">← กลับไปรายการ</a></p>
+<div class="detail">
+  <div class="gallery card">
+    <% if (images.length) { %>
+      <% images.forEach(f => { %>
+      <figure>
+        <img src="/app/files/<%= f.file_id %>" alt="<%= i.name %>">
+        <% if (can('file.delete')) { %>
+        <form method="post" action="/app/files/<%= f.file_id %>/delete" onsubmit="return confirm('ลบรูปนี้?')">
+          <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn danger sm">ลบรูป</button>
+        </form><% } %>
+      </figure>
+      <% }) %>
+    <% } else { %><div class="emoji big"><%= CATEGORY[i.category][1] %></div><% } %>
+  </div>
+  <div class="info">
+    <span class="badge muted"><%= CATEGORY[i.category][0] %></span>
+    <p class="price big-price"><%= baht(i.daily_price) %> <small>/ วัน</small></p>
+    <p><span class="badge <%= i.stock > 0 ? 'ok' : 'bad' %>"><%= i.stock > 0 ? 'คงเหลือ ' + i.stock + ' ชิ้น' : 'หมดชั่วคราว' %></span></p>
+    <p><%= i.description || 'ไม่มีคำอธิบาย' %></p>
+    <div class="btn-row">
+      <% if (can('instrument.update')) { %><a class="btn" href="/app/instruments/<%= i.instrument_id %>/edit">แก้ไข</a><% } %>
+      <% if (can('instrument.delete')) { %>
+      <form class="inline" method="post" action="/app/instruments/<%= i.instrument_id %>/delete" onsubmit="return confirm('ลบเครื่องดนตรีนี้?')">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn danger">ลบ</button>
+      </form><% } %>
+    </div>
+
+    <% if (can('rental.create')) { %>
+    <% if (i.stock > 0) { %>
+    <form id="rent" class="card form" method="post" action="/app/rentals" onsubmit="this.querySelector('button').disabled=true">
+      <h3>🎼 ส่งคำขอเช่า</h3>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="instrument_id" value="<%= i.instrument_id %>">
+      <label>วันที่เริ่มเช่า <input type="date" name="start_date" min="<%= today %>" value="<%= today %>" required></label>
+      <label>จำนวนวัน (1–30) <input type="number" id="days" name="days" min="1" max="30" value="3" required></label>
+      <label>หมายเหตุ (ถ้ามี) <input name="note" maxlength="255"></label>
+      <p class="total">ราคารวมโดยประมาณ: <strong id="total"></strong></p>
+      <button class="btn primary block">ส่งคำขอเช่า</button>
+    </form>
+    <script>
+      const price = <%= Number(i.daily_price) %>, d = document.getElementById('days'), t = document.getElementById('total');
+      const calc = () => { t.textContent = (price * (parseInt(d.value) || 0)).toLocaleString('th-TH') + ' ฿'; };
+      d.addEventListener('input', calc); calc();
+    </script>
+    <% } else { %><div class="alert warn">เครื่องนี้หมดชั่วคราว ยังส่งคำขอเช่าไม่ได้</div><% } %>
+    <% } %>
+
+    <% if (can('file.upload') && can('instrument.update')) { %>
+    <form class="card form" method="post" action="/app/files/upload" enctype="multipart/form-data">
+      <h3>🖼️ เพิ่มรูปเครื่องดนตรี</h3>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="target" value="instrument">
+      <input type="hidden" name="target_id" value="<%= i.instrument_id %>">
+      <label>เลือกไฟล์ภาพ (JPG / PNG / WebP ไม่เกิน <%= maxMb %> MB)
+        <input type="file" name="file" accept="image/jpeg,image/png,image/webp" required></label>
+      <button class="btn">อัปโหลด</button>
+    </form>
+    <% } %>
+  </div>
+</div>
+<%- include('partials/footer') %>

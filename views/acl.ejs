@@ -1,0 +1,25 @@
+<%- include('partials/header', { title: 'กำหนดสิทธิ์ (ACL: Role × Permission)' }) %>
+<p class="muted">ติ๊กเพื่อให้สิทธิ์ ยกติ๊กเพื่อยกเลิก แล้วกด "บันทึกสิทธิ์" — มีผลทันทีโดยไม่ต้องรีสตาร์ต Server · Admin ล็อกไว้ให้ได้ทุกสิทธิ์</p>
+<form method="post" action="/admin/acl/save">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="table-wrap"><table class="matrix">
+    <thead><tr><th>Permission</th>
+      <% roles.forEach(r => { %><th class="c"><%= r.role_name %><small><%= r.user_count %> คน</small></th><% }) %></tr></thead>
+    <tbody>
+    <% let last = ''; perms.forEach(p => { const g = p.permission_name.split('.')[0];
+       if (g !== last) { last = g; %><tr class="group"><td colspan="<%= roles.length + 1 %>"><%= g %></td></tr><% } %>
+      <tr>
+        <td><code><%= p.permission_name %></code>
+          <% if (!wired.has(p.permission_name)) { %><span class="badge warn">ยังไม่เชื่อมกับฟังก์ชัน</span><% } %>
+          <small class="muted"><%= p.description %></small></td>
+        <% roles.forEach(r => { const isAdm = r.role_name === 'admin'; %>
+        <td class="c"><input type="checkbox" name="g_<%= r.role_id %>_<%= p.permission_id %>"
+            <%= isAdm || grants.has(r.role_id + '_' + p.permission_id) ? 'checked' : '' %> <%= isAdm ? 'disabled' : '' %>></td>
+        <% }) %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <div class="savebar"><button class="btn primary">💾 บันทึกสิทธิ์</button></div>
+</form>
+<%- include('partials/footer') %>

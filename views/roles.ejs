@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'จัดการ Role' }) %>
+<form class="card form-row" method="post" action="/admin/roles">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>ชื่อ Role ใหม่ <input name="role_name" maxlength="30" placeholder="เช่น technician" required></label>
+  <label class="grow">คำอธิบาย <input name="description" maxlength="255" placeholder="หน้าที่ของ Role นี้"></label>
+  <button class="btn primary">+ เพิ่ม Role</button>
+</form>
+<div class="table-wrap"><table>
+  <thead><tr><th>ID</th><th>ชื่อ Role</th><th>คำอธิบาย</th><th>ผู้ใช้</th><th>สิทธิ์</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach(r => { %>
+  <tr>
+    <td><%= r.role_id %></td>
+    <td><input form="rf<%= r.role_id %>" name="role_name" value="<%= r.role_name %>" maxlength="30" <%- r.is_system ? 'readonly title="Role ระบบ เปลี่ยนชื่อไม่ได้"' : '' %>></td>
+    <td><input form="rf<%= r.role_id %>" name="description" value="<%= r.description %>" maxlength="255" class="wide"></td>
+    <td><%= r.user_count %></td><td><%= r.perm_count %></td>
+    <td class="actions-cell">
+      <form id="rf<%= r.role_id %>" class="inline" method="post" action="/admin/roles/<%= r.role_id %>/update">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm">บันทึก</button></form>
+      <% if (!r.is_system) { %>
+      <form class="inline" method="post" action="/admin/roles/<%= r.role_id %>/delete" onsubmit="return confirm('ลบ Role <%= r.role_name %> ?')">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="btn danger sm" <%- r.user_count > 0 ? 'disabled title="ยังมีผู้ใช้ใน Role นี้"' : '' %>>ลบ</button></form>
+      <% } else { %><span class="badge muted">Role ระบบ</span><% } %>
+    </td>
+  </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<p class="muted">ลบ Role ที่ยังมีผู้ใช้ไม่ได้ · ไม่สามารถลบหรือเปลี่ยนชื่อ Role admin · กำหนดสิทธิ์ให้ Role ใหม่ได้ที่หน้า <a href="/admin/acl">ACL</a></p>
+<%- include('partials/footer') %>

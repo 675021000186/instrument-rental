@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'จัดการ Permission' }) %>
+<div class="alert info">Permission จะ <strong>มีผลป้องกันจริง</strong> ก็ต่อเมื่อโค้ดของฟังก์ชัน/Route เรียกตรวจชื่อนั้น
+  (<code>requirePermission('ชื่อ')</code>) — การเพิ่มชื่อในฐานข้อมูลอย่างเดียวเป็นเพียงนิยาม ป้ายด้านล่างบอกสถานะการเชื่อมกับโค้ด</div>
+<form class="card form-row" method="post" action="/admin/permissions">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>ชื่อ Permission ใหม่ <input name="permission_name" maxlength="80" placeholder="เช่น report.view" required></label>
+  <label class="grow">คำอธิบาย <input name="description" maxlength="255"></label>
+  <button class="btn primary">+ เพิ่ม Permission</button>
+</form>
+<div class="table-wrap"><table>
+  <thead><tr><th>ID</th><th>ชื่อ Permission</th><th>คำอธิบาย</th><th>การเชื่อมกับโค้ด</th><th>Role ที่ได้รับ</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach(r => { const w = wired.has(r.permission_name); %>
+  <tr>
+    <td><%= r.permission_id %></td>
+    <td><input form="pf<%= r.permission_id %>" name="permission_name" value="<%= r.permission_name %>" maxlength="80" <%- w ? 'readonly title="ชื่อที่ระบบใช้งาน เปลี่ยนไม่ได้"' : '' %>></td>
+    <td><input form="pf<%= r.permission_id %>" name="description" value="<%= r.description %>" maxlength="255" class="wide"></td>
+    <td><span class="badge <%= w ? 'ok' : 'warn' %>"><%= w ? 'เชื่อมกับฟังก์ชันแล้ว' : 'ยังไม่มีโค้ดใช้งาน' %></span></td>
+    <td><%= r.role_count %></td>
+    <td class="actions-cell">
+      <form id="pf<%= r.permission_id %>" class="inline" method="post" action="/admin/permissions/<%= r.permission_id %>/update">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm">บันทึก</button></form>
+      <form class="inline" method="post" action="/admin/permissions/<%= r.permission_id %>/delete"
+            onsubmit="return confirm('ลบ Permission <%= r.permission_name %> ?<%= w ? ' (ระบบใช้ชื่อนี้ตรวจสิทธิ์: จะเหลือเฉพาะ Admin ที่ใช้ฟังก์ชันนี้ได้)' : '' %>')">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn danger sm">ลบ</button></form>
+    </td>
+  </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<%- include('partials/footer') %>

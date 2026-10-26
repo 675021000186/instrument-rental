@@ -1,0 +1,66 @@
+<%- include('partials/header', { title: 'รายการเช่า #' + r.rental_id }) %>
+<p><a href="/app/rentals">← กลับไปรายการเช่า</a></p>
+<div class="card">
+  <div class="steps">
+    <% const flow = ['pending','approved','picked_up','returned']; const idx = flow.indexOf(r.status); %>
+    <% flow.forEach((s, n) => { %><span class="step <%= idx >= n ? 'done' : '' %>"><%= STATUS[s][0] %></span><% }) %>
+    <% if (idx < 0) { %><span class="badge <%= STATUS[r.status][1] %>"><%= STATUS[r.status][0] %></span><% } %>
+  </div>
+  <dl class="kv">
+    <dt>เครื่องดนตรี</dt><dd><%= CATEGORY[r.category][1] %> <%= r.instrument_name %></dd>
+    <dt>ผู้เช่า</dt><dd><%= r.full_name %> (<%= r.username %>)</dd>
+    <dt>วันที่เริ่มเช่า</dt><dd><%= fmtDate(r.start_date) %> · <%= r.days %> วัน</dd>
+    <dt>ราคารวม</dt><dd><strong><%= baht(r.total_price) %></strong></dd>
+    <dt>สถานะ</dt><dd><span class="badge <%= STATUS[r.status][1] %>"><%= STATUS[r.status][0] %></span></dd>
+    <dt>ผู้พิจารณา</dt><dd><%= r.reviewer || '-' %></dd>
+    <dt>หมายเหตุ</dt><dd><%= r.note || '-' %></dd>
+    <dt>ส่งคำขอเมื่อ</dt><dd><%= fmtDateTime(r.created_at) %></dd>
+  </dl>
+  <div class="btn-row"><%- include('partials/rental-actions', { r: r }) %></div>
+</div>
+
+<% if (can('file.read')) { %>
+<h2>📎 ไฟล์แนบ / เอกสารประกอบ</h2>
+<div class="card">
+  <% if (!files.length) { %><p class="muted">ยังไม่มีไฟล์แนบ</p><% } %>
+  <ul class="files">
+    <% files.forEach(f => { %>
+    <li>
+      <span class="ficon"><%= f.mime_type === 'application/pdf' ? '📄' : '🖼️' %></span>
+      <span class="fname"><%= f.original_name %><small><%= kb(f.size_bytes) %> · โดย <%= f.username %> · <%= fmtDateTime(f.created_at) %></small></span>
+      <a class="btn sm" target="_blank" href="/app/files/<%= f.file_id %>">เปิดดู</a>
+      <a class="btn sm" href="/app/files/<%= f.file_id %>?download=1">ดาวน์โหลด</a>
+      <% if (can('file.delete')) { %>
+      <form class="inline" method="post" action="/app/files/<%= f.file_id %>/delete" onsubmit="return confirm('ลบไฟล์นี้?')">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn danger sm">ลบ</button>
+      </form><% } %>
+    </li>
+    <% }) %>
+  </ul>
+  <% if (can('file.upload')) { %>
+  <form class="form upload" method="post" action="/app/files/upload" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="target" value="rental">
+    <input type="hidden" name="target_id" value="<%= r.rental_id %>">
+    <label>แนบเอกสาร (สำเนาบัตร/หลักฐานมัดจำ) — JPG, PNG, WebP, PDF ไม่เกิน <%= maxMb %> MB
+      <input type="file" name="file" required></label>
+    <button class="btn primary">อัปโหลด</button>
+  </form>
+  <% } %>
+</div>
+<% } %>
+
+<% if (can('log.read')) { %>
+<h2>🧾 Log ที่เกี่ยวข้องกับรายการนี้</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>เวลา</th><th>ผู้ทำ</th><th>เหตุการณ์</th><th>รายละเอียด</th><th>ผล</th></tr></thead>
+  <tbody>
+  <% logs.forEach(l => { %>
+  <tr><td><%= fmtDateTime(l.created_at) %></td><td><%= l.username || '-' %></td><td><code><%= l.event %></code></td>
+      <td><%= l.detail %></td><td><span class="badge <%= l.result === 'success' ? 'ok' : l.result === 'denied' ? 'bad' : 'warn' %>"><%= l.result %></span></td></tr>
+  <% }) %>
+  <% if (!logs.length) { %><tr><td colspan="5" class="muted">ยังไม่มี Log</td></tr><% } %>
+  </tbody>
+</table></div>
+<% } %>
+<%- include('partials/footer') %>

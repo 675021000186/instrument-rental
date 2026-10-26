@@ -1,0 +1,18 @@
+<%- include('partials/header', { title: 'สวัสดี ' + user.full_name }) %>
+<p class="muted">คุณเข้าสู่ระบบในบทบาท <span class="badge info"><%= user.role_name %></span></p>
+<div class="grid cols-4">
+  <% stats.forEach(s => { %>
+  <a class="card stat" href="<%= s.href %>"><span class="num"><%= s.value %></span><span><%= s.label %></span></a>
+  <% }) %>
+</div>
+<h2>ทางลัด</h2>
+<div class="grid cols-3">
+  <% if (can('instrument.read')) { %><a class="card tile" href="/app/instruments"><span>🎷</span>เลือกเช่าเครื่องดนตรี</a><% } %>
+  <% if (can('rental.read.all') || can('rental.read.own')) { %><a class="card tile" href="/app/rentals"><span>📋</span><%= can('rental.read.all') ? 'จัดการคำขอเช่า' : 'การเช่าของฉัน' %></a><% } %>
+  <% if (can('instrument.create')) { %><a class="card tile" href="/app/instruments/new"><span>➕</span>เพิ่มเครื่องดนตรี</a><% } %>
+  <% if (can('report.view')) { %><a class="card tile" href="/app/reports"><span>📊</span>รายงานสรุป</a><% } %>
+  <% if (can('user.manage')) { %><a class="card tile" href="/admin/users"><span>👥</span>จัดการผู้ใช้</a><% } %>
+  <% if (can('acl.manage')) { %><a class="card tile" href="/admin/acl"><span>🔐</span>กำหนดสิทธิ์ (ACL)</a><% } %>
+  <% if (can('log.read')) { %><a class="card tile" href="/admin/logs"><span>🧾</span>ดู Log การใช้งาน</a><% } %>
+</div>
+<%- include('partials/footer') %>

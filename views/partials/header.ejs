@@ -1,0 +1,32 @@
+<% const act = p => (currentPath || '').startsWith(p) ? 'active' : '';
+   const adminLinks = [['/admin/users','ผู้ใช้','user.manage'],['/admin/roles','Role','role.manage'],
+     ['/admin/permissions','Permission','permission.manage'],['/admin/acl','ACL','acl.manage'],['/admin/logs','Log','log.read']]
+     .filter(l => can(l[2])); %>
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= title %> · จังหวะหัวใจ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css"></head><body>
+<% if (user) { %>
+<header class="topbar">
+  <a class="brand" href="/app"><img src="/logo.svg" alt=""><span><b>จังหวะหัวใจ</b><small>RHYTHM OF THE HEART</small></span></a>
+  <nav>
+    <a class="<%= currentPath === '/app' ? 'active' : '' %>" href="/app">หน้าหลัก</a>
+    <% if (can('instrument.read')) { %><a class="<%= act('/app/instruments') %>" href="/app/instruments">เครื่องดนตรี</a><% } %>
+    <% if (can('rental.read.all') || can('rental.read.own')) { %><a class="<%= act('/app/rentals') %>" href="/app/rentals">การเช่า</a><% } %>
+    <% if (can('report.view')) { %><a class="<%= act('/app/reports') %>" href="/app/reports">รายงาน</a><% } %>
+    <% if (adminLinks.length) { %><span class="nav-sep">ผู้ดูแล</span>
+      <% adminLinks.forEach(l => { %><a class="<%= act(l[0]) %>" href="<%= l[0] %>"><%= l[1] %></a><% }) %><% } %>
+  </nav>
+  <div class="who">
+    <span><%= user.full_name %><small><%= user.role_name %> · <%= user.username %></small></span>
+    <form method="post" action="/logout"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="btn ghost sm light">ออกจากระบบ</button></form>
+  </div>
+</header>
+<% } %>
+<main class="container<%= locals.bare ? ' bare' : '' %>">
+<% if (flash) { %><div class="alert <%= flash.type %>"><%= flash.msg %></div><% } %>
+<% if (!locals.bare) { %><h1><%= title %></h1><% } %>

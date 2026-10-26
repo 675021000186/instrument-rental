@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: 'จัดการผู้ใช้' }) %>
+<div class="toolbar"><span class="muted">เปลี่ยน Role ของผู้ใช้ได้ที่ปุ่ม "แก้ไข" (มีผลทันที)</span>
+  <a class="btn primary" href="/admin/users/new">+ เพิ่มผู้ใช้</a></div>
+<div class="table-wrap"><table>
+  <thead><tr><th>ID</th><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Role</th><th>สถานะ</th><th>สร้างเมื่อ</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach(r => { %>
+  <tr>
+    <td><%= r.user_id %></td><td><code><%= r.username %></code></td><td><%= r.full_name %></td>
+    <td><span class="badge info"><%= r.role_name %></span></td>
+    <td><span class="badge <%= r.is_active ? 'ok' : 'muted' %>"><%= r.is_active ? 'ใช้งาน' : 'ปิดใช้งาน' %></span></td>
+    <td><%= fmtDateTime(r.created_at) %></td>
+    <td class="actions-cell">
+      <a class="btn sm" href="/admin/users/<%= r.user_id %>/edit">แก้ไข</a>
+      <% if (r.user_id !== user.user_id) { %>
+      <form class="inline" method="post" action="/admin/users/<%= r.user_id %>/delete" onsubmit="return confirm('ลบผู้ใช้ <%= r.username %> ?')">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn danger sm">ลบ</button>
+      </form><% } %>
+    </td>
+  </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<%- include('partials/footer') %>
