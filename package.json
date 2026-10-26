@@ -6,11 +6,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "node --env-file=.env app.js",
-    "init": "node --env-file=.env init-db.js",
-    "seed": "node --env-file=.env seed.js",
+    "start": "node app.js",
+    "init": "node init-db.js",
+    "seed": "node seed.js",
     "setup": "npm run init && npm run seed",
-    "reset": "node --env-file=.env init-db.js --reset && npm run seed"
+    "reset": "node init-db.js --reset && npm run seed"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
