@@ -104,7 +104,7 @@ app.use((err, req, res, next) => {
 
 if (require.main === module) {
   const port = Number(process.env.PORT || 3000);
-  app.listen(port, '0.0.0.0', () => console.log(`เปิด http://localhost:${port}/login`));
+  app.listen(port, () => console.log(`เปิด http://localhost:${port}/login`));
 }
 
 module.exports = app;
