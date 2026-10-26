@@ -37,7 +37,7 @@ app.get('/', (req, res) => res.redirect(req.user ? '/app' : '/login'));
 
 app.get('/login', (req, res) => {
   if (req.user) return res.redirect('/app');
-  res.render('login', { error: '', demo: demoList});
+  res.render('login', { error: '', demo: demo});
 });
 
 app.post('/login', async (req, res, next) => {
