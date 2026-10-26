@@ -1,3 +1,9 @@
 const { Pool, types } = require('pg');
-types.setTypeParser(1082, v => v); // DATE -> 'YYYY-MM-DD' (ไม่แปลงเขตเวลา)
-module.exports = new Pool();
+types.setTypeParser(1082, v => v);
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
+
+module.exports = pool;
